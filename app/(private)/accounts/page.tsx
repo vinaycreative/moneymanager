@@ -169,23 +169,42 @@ export default function AccountsPage() {
         <h2 className="text-lg font-bold text-black mb-4">All Accounts</h2>
 
         {accountsLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 animate-pulse"
+                className="bg-gradient-to-br from-white to-gray-50/50 rounded-3xl border border-gray-200/60 animate-pulse overflow-hidden"
               >
-                <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div className="p-6">
+                  {/* Top Row Skeleton */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-gray-200 rounded-2xl"></div>
+                      <div className="space-y-2">
+                        <div className="h-6 bg-gray-200 rounded w-32"></div>
+                        <div className="h-5 bg-gray-200 rounded w-24"></div>
+                      </div>
+                    </div>
+                    <div className="h-8 bg-gray-200 rounded w-28"></div>
+                  </div>
+
+                  {/* Bottom Row Skeleton */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-7 bg-gray-200 rounded-full w-20"></div>
+                      <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="w-9 h-9 bg-gray-200 rounded-xl"></div>
+                      <div className="w-9 h-9 bg-gray-200 rounded-xl"></div>
+                    </div>
+                  </div>
                 </div>
-                <div className="h-6 bg-gray-200 rounded w-20"></div>
               </div>
             ))}
           </div>
         ) : accounts.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {accounts.map((account: any) => {
               const Icon = getAccountIcon(account.type)
               const color = getAccountColor(account.type)
@@ -193,63 +212,121 @@ export default function AccountsPage() {
               return (
                 <div
                   key={account.id}
-                  className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
+                  className="group relative bg-gradient-to-br from-white to-gray-50/50 rounded-3xl border border-gray-200/60 hover:border-gray-300 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 overflow-hidden transform hover:-translate-y-1"
                 >
+                  {/* Animated background pattern */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-transparent group-hover:from-blue-50/30 group-hover:via-purple-50/20 group-hover:to-pink-50/30 transition-all duration-700"></div>
+
+                  {/* Decorative accent line */}
                   <div
-                    className={`w-12 h-12 rounded-lg flex items-center justify-center ${color} text-white`}
-                  >
-                    <Icon className="w-6 h-6" />
-                  </div>
+                    className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${color} opacity-80`}
+                  ></div>
 
-                  <div className="flex-1">
-                    <div className="font-medium text-black">{account.name}</div>
-                    {account.account_number && (
-                      <div className="text-sm text-gray-500">{account.account_number}</div>
-                    )}
-                    <div className="text-xs text-gray-400 capitalize">
-                      {account.type.replace("_", " ")}
+                  <div className="relative p-6">
+                    {/* Top Row - Icon, Name, and Balance */}
+                    <div className="flex items-center justify-between mb-4">
+                      {/* Left: Icon and Account Name */}
+                      <div className="flex items-center gap-4">
+                        <div className="relative">
+                          <div
+                            className={`w-14 h-14 rounded-2xl flex items-center justify-center ${color} text-white shadow-lg transform group-hover:scale-110 transition-all duration-300`}
+                          >
+                            <Icon className="w-7 h-7" />
+                          </div>
+                          <div
+                            className={`absolute inset-0 w-14 h-14 rounded-2xl ${color} opacity-20 blur-xl group-hover:opacity-40 transition-all duration-500`}
+                          ></div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-xl text-gray-900 group-hover:text-gray-800 transition-colors">
+                            {account.name}
+                          </div>
+                          {account.account_number && (
+                            <div className="text-sm text-gray-600 font-mono bg-gray-100/80 px-3 py-1 rounded-lg inline-block mt-1">
+                              {account.account_number}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right: Balance */}
+                      <div className="text-right">
+                        <div
+                          className={`font-black text-3xl bg-gradient-to-r ${
+                            account.balance >= 0
+                              ? "from-green-600 to-emerald-600"
+                              : "from-red-500 to-pink-500"
+                          } bg-clip-text text-transparent transform group-hover:scale-105 transition-all duration-300`}
+                        >
+                          {showBalances ? `₹${account.balance.toLocaleString()}` : "₹****"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Row - Type Badge, Status, and Actions */}
+                    <div className="flex items-center justify-between">
+                      {/* Left: Account Type and Status */}
+                      <div className="flex items-center gap-3">
+                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full border border-gray-200/60">
+                          <span className="text-sm font-semibold text-gray-700 capitalize">
+                            {account.type.replace("_", " ")}
+                          </span>
+                        </div>
+                        <div
+                          className={`inline-flex items-center px-3 py-1.5 rounded-full ${
+                            account.balance >= 0
+                              ? "bg-green-100 border border-green-200"
+                              : "bg-red-100 border border-red-200"
+                          }`}
+                        >
+                          <span
+                            className={`text-xs font-bold ${
+                              account.balance >= 0 ? "text-green-700" : "text-red-700"
+                            }`}
+                          >
+                            {account.balance >= 0 ? "💰 Available" : "⚠️ Due"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right: Action Buttons */}
+                      <div className="flex items-center gap-2">
+                        <EditAccountDrawer
+                          account={account}
+                          isOpen={isEditOpen}
+                          onOpenChange={(open) => !open && closeEditDrawer()}
+                          formData={editFormData}
+                          onFormDataChange={setEditFormData}
+                          onSubmit={handleEditSubmit}
+                          isLoading={isEditLoading}
+                          isSubmitDisabled={isEditSubmitDisabled}
+                        >
+                          <button
+                            className="p-2.5 rounded-xl hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-all duration-200 transform hover:scale-105"
+                            onClick={() => openEditDrawer(account)}
+                            title="Edit account"
+                          >
+                            <MoreVertical className="w-4 h-4 text-blue-600" />
+                          </button>
+                        </EditAccountDrawer>
+                        <button
+                          onClick={() => handleDeleteClick(account.id)}
+                          className="p-2.5 rounded-xl hover:bg-red-50 hover:border-red-200 border border-transparent transition-all duration-200 transform hover:scale-105"
+                          title="Delete account"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="text-right">
-                    <div
-                      className={`font-bold text-lg ${
-                        account.balance >= 0 ? "text-green-600" : "text-red-500"
-                      }`}
-                    >
-                      {showBalances ? `₹ ${account.balance.toLocaleString()}` : "₹ ****"}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {account.balance >= 0 ? "Available" : "Due"}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-1">
-                    <EditAccountDrawer
-                      account={account}
-                      isOpen={isEditOpen}
-                      onOpenChange={(open) => !open && closeEditDrawer()}
-                      formData={editFormData}
-                      onFormDataChange={setEditFormData}
-                      onSubmit={handleEditSubmit}
-                      isLoading={isEditLoading}
-                      isSubmitDisabled={isEditSubmitDisabled}
-                    >
-                      <button 
-                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                        onClick={() => openEditDrawer(account)}
-                      >
-                        <MoreVertical className="w-4 h-4 text-gray-500" />
-                      </button>
-                    </EditAccountDrawer>
-                    <button
-                      onClick={() => handleDeleteClick(account.id)}
-                      className="p-2 rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </button>
-                  </div>
+                  {/* Bottom accent */}
+                  <div
+                    className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-${color.replace(
+                      "bg-",
+                      ""
+                    )} to-transparent opacity-60`}
+                  ></div>
                 </div>
               )
             })}
@@ -305,17 +382,21 @@ export default function AccountsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Balance:</span>
-                <span className={`font-medium ${
-                  accountToDelete.balance >= 0 ? "text-green-600" : "text-red-600"
-                }`}>
+                <span
+                  className={`font-medium ${
+                    accountToDelete.balance >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
                   ₹ {accountToDelete.balance.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Status:</span>
-                <span className={`font-medium ${
-                  accountToDelete.balance >= 0 ? "text-green-600" : "text-red-600"
-                }`}>
+                <span
+                  className={`font-medium ${
+                    accountToDelete.balance >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
                   {accountToDelete.balance >= 0 ? "Available" : "Due"}
                 </span>
               </div>
