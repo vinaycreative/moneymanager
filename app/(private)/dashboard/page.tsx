@@ -173,7 +173,6 @@ export default function Dashboard() {
             <ArrowRight className="text-gray-600" size={20} />
           </button>
         </div>
-        <DateTimePickerDemo />
       </section>
 
       {/* Analytics Cards */}
