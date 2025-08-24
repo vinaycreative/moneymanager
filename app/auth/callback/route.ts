@@ -36,6 +36,9 @@ export async function GET(request: Request) {
           console.error("Failed to create user profile via API")
         }
 
+        // Add a small delay to ensure session is properly established
+        await new Promise((resolve) => setTimeout(resolve, 100))
+
         // Simplified redirect logic for production
         const redirectUrl = `${origin}${next}`
         return NextResponse.redirect(redirectUrl)
@@ -43,6 +46,10 @@ export async function GET(request: Request) {
         console.error("Failed to create/update user profile:", userError)
         // Even if user profile creation fails, redirect to dashboard
         // The user can still use the app, but some features might be limited
+
+        // Add a small delay to ensure session is properly established
+        await new Promise((resolve) => setTimeout(resolve, 100))
+
         const redirectUrl = `${origin}${next}`
         return NextResponse.redirect(redirectUrl)
       }

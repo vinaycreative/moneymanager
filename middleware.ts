@@ -7,6 +7,11 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Skip middleware for auth callback to prevent race conditions
+  if (pathname.startsWith("/auth/callback")) {
+    return NextResponse.next()
+  }
+
   // Create a Supabase client configured to use cookies
   let supabaseResponse = NextResponse.next({
     request: {
