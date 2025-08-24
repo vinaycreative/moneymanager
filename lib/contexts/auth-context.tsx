@@ -61,12 +61,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             const userProfile = await UserService.getUserById(session.user.id)
             setProfile(userProfile)
-          } catch (error) {
+          } catch (error: any) {
             console.error("Failed to get user profile:", error)
-            // If profile fetch fails, clear auth state
-            await supabase.auth.signOut()
-            setUser(null)
-            setProfile(null)
+            // Only clear auth if it's not a "profile not found" error
+            if (error.message && !error.message.includes("PGRST116")) {
+              // If profile fetch fails for other reasons, clear auth state
+              await supabase.auth.signOut()
+              setUser(null)
+              setProfile(null)
+            } else {
+              // For new users without profile, keep the auth session
+              console.log("New user without profile - keeping auth session")
+              setProfile(null)
+            }
           }
         }
 
@@ -84,12 +91,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
               const userProfile = await UserService.getUserById(session.user.id)
               setProfile(userProfile)
-            } catch (error) {
+            } catch (error: any) {
               console.error("Failed to get user profile on auth change:", error)
-              // Clear auth if profile fetch fails
-              await supabase.auth.signOut()
-              setUser(null)
-              setProfile(null)
+              // Only clear auth if it's not a "profile not found" error
+              if (error.message && !error.message.includes("PGRST116")) {
+                // Clear auth if profile fetch fails for other reasons
+                await supabase.auth.signOut()
+                setUser(null)
+                setProfile(null)
+              } else {
+                // For new users without profile, keep the auth session
+                console.log("New user without profile on auth change - keeping auth session")
+                setProfile(null)
+              }
             }
           }
         })

@@ -39,7 +39,14 @@ export function useCurrentUser() {
         .eq("id", user.id)
         .single()
 
-      if (profileError && profileError.code !== "PGRST116") {
+      // If profile doesn't exist (PGRST116), return the auth user object
+      // This prevents the auth context from clearing the session for new users
+      if (profileError && profileError.code === "PGRST116") {
+        console.log("User profile not found, returning auth user object")
+        return user
+      }
+
+      if (profileError) {
         throw new Error(`Failed to fetch user profile: ${profileError.message}`)
       }
 

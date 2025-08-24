@@ -79,13 +79,14 @@ export class UserService {
    */
   static async getUserById(userId: string): Promise<any> {
     try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", userId)
-        .single()
+      const { data, error } = await supabase.from("users").select("*").eq("id", userId).single()
 
       if (error) {
+        // If user profile doesn't exist (PGRST116), return null instead of throwing
+        if (error.code === "PGRST116") {
+          console.log("User profile not found for ID:", userId)
+          return null
+        }
         throw new Error(`Failed to get user: ${error.message}`)
       }
 
@@ -127,7 +128,10 @@ export class UserService {
    */
   static async getCurrentUser(): Promise<any> {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
 
       if (authError) {
         throw new Error(`Failed to get authenticated user: ${authError.message}`)
@@ -151,10 +155,7 @@ export class UserService {
    */
   static async deleteUser(userId: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from("users")
-        .delete()
-        .eq("id", userId)
+      const { error } = await supabase.from("users").delete().eq("id", userId)
 
       if (error) {
         throw new Error(`Failed to delete user: ${error.message}`)
@@ -164,4 +165,4 @@ export class UserService {
       throw error
     }
   }
-} 
+}
