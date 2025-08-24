@@ -17,23 +17,59 @@ export async function GET(request: Request) {
 
     if (!error && data.user) {
       try {
-        // Create or update user profile via API route
+        // Create or update user profile directly in the callback
         const userData = {
+          id: data.user.id,
+          email: data.user.email!,
           full_name: data.user.user_metadata?.full_name || data.user.user_metadata?.name,
           avatar_url: data.user.user_metadata?.avatar_url || data.user.user_metadata?.picture,
         }
 
-        const response = await fetch(`${origin}/api/auth/user`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: request.headers.get("cookie") || "",
-          },
-          body: JSON.stringify(userData),
-        })
+        // Check if user profile already exists
+        const { data: existingUser, error: fetchError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", userData.id)
+          .single()
 
-        if (!response.ok) {
-          console.error("Failed to create user profile via API")
+        if (fetchError && fetchError.code !== "PGRST116") {
+          console.error("Error checking existing user:", fetchError)
+        }
+
+        if (existingUser) {
+          // User exists - only update if there are actual changes
+          const needsUpdate =
+            existingUser.full_name !== userData.full_name ||
+            existingUser.avatar_url !== userData.avatar_url
+
+          if (needsUpdate) {
+            const { error: updateError } = await supabase
+              .from("users")
+              .update({
+                full_name: userData.full_name || existingUser.full_name,
+                avatar_url: userData.avatar_url || existingUser.avatar_url,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", userData.id)
+
+            if (updateError) {
+              console.error("Failed to update user profile:", updateError)
+            }
+          }
+        } else {
+          // User doesn't exist, create new user profile
+          const { error: createError } = await supabase.from("users").insert({
+            id: userData.id,
+            email: userData.email,
+            full_name: userData.full_name || null,
+            avatar_url: userData.avatar_url || null,
+            currency: "INR",
+            timezone: "Asia/Kolkata",
+          })
+
+          if (createError) {
+            console.error("Failed to create user profile:", createError)
+          }
         }
 
         // Add a small delay to ensure session is properly established
